@@ -1,0 +1,155 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+
+function Signin() {
+  const navigate = useNavigate();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [formData, setFormData] = useState({
+    uname: "",
+    pass: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/user/signin", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.text();
+
+      if (res.ok) {
+        const store = remember ? localStorage : sessionStorage;
+        store.setItem("token", data);
+        store.setItem("uname", formData.uname);
+        navigate("/welcome");
+        return;
+      } else {
+        setAlertMessage("Invalid username or password!");
+        setTimeout(() => setAlertMessage(""), 800);
+      }
+    } catch (error) {
+      console.log(error);
+      setAlertMessage("OOPS!! sign in failed");
+      setTimeout(() => setAlertMessage(""), 800);
+    }
+  };
+
+  return (
+    <div className="page-bg min-h-screen flex items-center justify-center px-4 py-14">
+      {alertMessage && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-amber-100 text-amber-900 text-sm px-5 py-2.5 rounded-md shadow-lg">
+          {alertMessage}
+        </div>
+      )}
+
+      <div className="relative w-[430px] max-w-full px-14 pt-20 pb-9 rounded-md bg-gradient-to-br from-[#7e69a6]/90 via-[#5e4c80]/95 to-[#503e6e]/95 shadow-[0_22px_55px_rgba(8,4,18,0.55)] text-center">
+        <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full bg-[#150d24] shadow-[0_10px_26px_rgba(8,4,18,0.45)] flex items-center justify-center">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff"
+               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8.5" r="3.5" />
+            <path d="M4.5 20c1.2-3.4 4.1-5.2 7.5-5.2s6.3 1.8 7.5 5.2" />
+          </svg>
+        </div>
+
+        <h2 className="text-[17px] font-semibold tracking-[4px] mb-7 text-[#f3eefc]">LOGIN</h2>
+
+        <form className="flex flex-col" onSubmit={handleSubmit}>
+          <div className="flex items-stretch h-11 mb-5 rounded-sm overflow-hidden">
+            <span className="flex-none w-11 bg-[#3f3f4a] flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="Username"
+              name="uname"
+              value={formData.uname}
+              onChange={handleChange}
+              autoComplete="username"
+              required
+              className="flex-1 min-w-0 border-none outline-none px-4 text-[15px] text-gray-700 bg-white placeholder:text-[#9aa0ab] placeholder:tracking-wider"
+            />
+          </div>
+
+          <div className="flex items-stretch h-11 mb-4 rounded-sm overflow-hidden">
+            <span className="flex-none w-11 bg-[#3f3f4a] flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+                <rect x="5" y="10.5" width="14" height="9.5" rx="1.5" />
+                <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#fff" strokeWidth="2" />
+              </svg>
+            </span>
+            <input
+              type="password"
+              placeholder="••••••••••"
+              name="pass"
+              value={formData.pass}
+              onChange={handleChange}
+              autoComplete="current-password"
+              required
+              className="flex-1 min-w-0 border-none outline-none px-4 text-[15px] text-gray-700 bg-white placeholder:text-[#9aa0ab] tracking-wider"
+            />
+          </div>
+
+          <div className="flex items-center justify-between mb-6 mx-0.5">
+            <label className="flex items-center gap-2.5 text-[13.5px] text-[#eae4f6] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="hidden"
+              />
+              <span className="w-[17px] h-[17px] rounded-sm bg-[#150d24] flex items-center justify-center flex-none">
+                {remember && (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                       stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 12.5l5.5 5.5L20 6.5" />
+                  </svg>
+                )}
+              </span>
+              Remember me
+            </label>
+            <a href="#" onClick={(e) => e.preventDefault()}
+               className="text-[13.5px] italic text-[#e6dff5] hover:underline">
+              Forgot Password?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            className={`w-3/4 h-11 mx-auto mt-1 border-none rounded-sm bg-[#1c1430] text-white text-[13px] font-semibold tracking-[4px] cursor-pointer transition-colors hover:bg-[#2a2044] ${
+              formData.uname && formData.pass ? "" : "opacity-70"
+            }`}
+          >
+            LOGIN
+          </button>
+        </form>
+
+        <p className="mt-6 text-[13.5px] text-[#efe9f9]">
+          New here?{" "}
+          <Link to="/signup" className="text-white font-semibold underline underline-offset-4">
+            Create one
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Signin;
