@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
     public Userdto creaUser(Userdto userdto) {
         User user = UserMapper.toEntity(userdto);
         user.setPass(passwordEncoder.encode(user.getPass()));
+        user.setRole("USER");
         userRepository.save(user);
         return UserMapper.toDto(user);
     }

@@ -8,7 +8,7 @@ import org.sample.userblog.entity.User;
 
 public class UserMapper {
     public static Userdto toDto(User user){
-        return new Userdto(user.getUname(), user.getPass(), user.getRole());
+        return new Userdto(user.getUname(), user.getPass());
     }
 
     public static User toEntity(Userdto userdto){
@@ -16,7 +16,6 @@ public class UserMapper {
 
         user.setUname(userdto.uname());
         user.setPass(userdto.pass());
-        user.setRole(userdto.role());
 
         return user;
     }
